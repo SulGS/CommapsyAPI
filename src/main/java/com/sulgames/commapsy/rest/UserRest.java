@@ -155,6 +155,83 @@ public class UserRest {
 		}
 
 	}
+	
+	@RequestMapping(value="requestPasswordChange", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> requestPasswordChange(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			User user = getUser(jsonValues.getString("Mail"));
+			
+			
+			if(user==null) 
+			{
+				return ResponseEntity.ok(false);
+			}else 
+			{
+				String key = Utils.generateRandomKey();
+				
+				user.set_Key(Utils.hashString(key));
+				
+				userDAO.save(user);
+				
+				Utils.sendMail(user.getMail(), "Peticion de cambio de contraseña", "La clave para el cambio de contraseña es la siguiente: " + key);
+
+				
+			}
+			
+			
+			return ResponseEntity.ok(true);
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			return ResponseEntity.ok(false);
+		}
+
+	}
+	
+	@RequestMapping(value="changePassword", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> changePassword(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			User user = getUser(jsonValues.getString("Mail"));
+			
+			
+			if(user==null) 
+			{
+				return ResponseEntity.ok(false);
+			}else 
+			{
+				if(user.get_Key().equals(jsonValues.getString("Key"))) 
+				{
+					user.setPassword(jsonValues.getString("Password"));
+					
+					userDAO.save(user);
+					
+					Utils.sendMail(user.getMail(), "Operacion realizada con exito", "La contraseña se ha cambiado con exito");
+
+				}
+				
+				
+				
+			}
+			
+			
+			return ResponseEntity.ok(true);
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			return ResponseEntity.ok(false);
+		}
+
+	}
 
 
 
