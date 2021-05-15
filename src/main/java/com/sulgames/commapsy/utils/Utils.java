@@ -1,6 +1,7 @@
 package com.sulgames.commapsy.utils;
 
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,8 +17,29 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.TypeInfo;
+import org.w3c.dom.UserDataHandler;
+
+import com.sulgames.commapsy.entities.User.User;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
 
 public class Utils {
+	
+	public static Document document;
 	
 	public static String generateRandomKey() {
 	    // El banco de caracteres
@@ -69,8 +91,47 @@ public class Utils {
 	    return hexString.toString();
 	}
 
-	public static boolean sendMail(String to, String subject, String body) 
+	public static boolean sendMail(User to, String subject, String body) 
 	{
+		Document copiedDocument = (Document) document.cloneNode(true);
+		
+		Element element = (Element)copiedDocument.getElementById("message");
+		
+		Element p = copiedDocument.createElement("p");
+		p.setAttribute("style","color:white;");
+		p.setTextContent("Hola " + to.getName() + " " + to.getSurname() + ",");
+		
+		element.appendChild(p);
+		
+		p = copiedDocument.createElement("p");
+		p.setAttribute("style","color:white;");
+		p.setTextContent(body);
+		
+		element.appendChild(p);
+		
+		StringWriter writer = new StringWriter();
+		
+		TransformerFactory tf = TransformerFactory.newInstance();
+	    Transformer transformer = null;
+	   
+	    try {
+			transformer = tf.newTransformer();
+		} catch (TransformerConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
+        //transform document to string 
+        try {
+			transformer.transform(new DOMSource(copiedDocument), new StreamResult(writer));
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+ 
+        String xmlString = writer.getBuffer().toString();   
+		
+		
 	    String remitente = "commapsy@gmail.com";  //Para la dirección nomcuenta@gmail.com
 
 	    Properties props = System.getProperties();
@@ -86,9 +147,9 @@ public class Utils {
 
 	    try {
 	        message.setFrom(new InternetAddress(remitente));
-	        message.addRecipients(Message.RecipientType.TO, to);   //Se podrían añadir varios de la misma manera
+	        message.addRecipients(Message.RecipientType.TO, to.getMail());   //Se podrían añadir varios de la misma manera
 	        message.setSubject(subject);
-	        message.setText(body);
+	        message.setContent(xmlString,"text/html");
 	        Transport transport = session.getTransport("smtp");
 	        transport.connect("smtp.gmail.com", remitente, "Commapsy1234");
 	        transport.sendMessage(message, message.getAllRecipients());

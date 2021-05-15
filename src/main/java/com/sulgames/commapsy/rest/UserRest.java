@@ -39,7 +39,7 @@ public class UserRest {
 
 	@RequestMapping(value="login", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Boolean> login(@RequestBody String jsonBody) 
+	public ResponseEntity<User> login(@RequestBody String jsonBody) 
 	{
 		JsonObject jsonValues = Utils.stringToJson(jsonBody);
 		
@@ -48,21 +48,21 @@ public class UserRest {
 			
 			if(user==null) 
 			{
-				return ResponseEntity.ok(false);
+				return ResponseEntity.ok(null);
 			}
 			
 			if(user.getPassword().equals(jsonValues.getString("Password"))) 
 			{
-				return ResponseEntity.ok(true);
+				return ResponseEntity.ok(user);
 			}else 
 			{
-				return ResponseEntity.ok(false);
+				return ResponseEntity.ok(null);
 			}
 			
 
 		}catch(NoSuchElementException | NullPointerException ex) 
 		{
-			return ResponseEntity.ok(false);
+			return ResponseEntity.ok(null);
 		}
 
 	}
@@ -99,7 +99,7 @@ public class UserRest {
 				
 				userDAO.save(user);
 				
-				Utils.sendMail(user.getMail(), "Clave de activacion de la cuenta", "Esta es su clave de activacion: " + key);
+				Utils.sendMail(user, "Clave de activacion de la cuenta", "Esta es su clave de activacion: " + key);
 				
 				
 				
@@ -136,7 +136,7 @@ public class UserRest {
 				{
 					user.setIs_Enable(true);
 					userDAO.save(user);
-					Utils.sendMail(user.getMail(), "Activacion completada", "Su cuenta ha sido activada. Gracias por confiar en nosotros");
+					Utils.sendMail(user, "Activacion completada", "Su cuenta ha sido activada. Gracias por confiar en nosotros");
 				}else
 				{
 					return ResponseEntity.ok(false);
@@ -177,7 +177,7 @@ public class UserRest {
 				
 				userDAO.save(user);
 				
-				Utils.sendMail(user.getMail(), "Peticion de cambio de contraseña", "La clave para el cambio de contraseña es la siguiente: " + key);
+				Utils.sendMail(user, "Peticion de cambio de contraseña", "La clave para el cambio de contraseña es la siguiente: " + key);
 
 				
 			}
@@ -188,6 +188,7 @@ public class UserRest {
 
 		}catch(NoSuchElementException | NullPointerException ex) 
 		{
+			ex.printStackTrace();
 			return ResponseEntity.ok(false);
 		}
 
@@ -214,8 +215,11 @@ public class UserRest {
 					
 					userDAO.save(user);
 					
-					Utils.sendMail(user.getMail(), "Operacion realizada con exito", "La contraseña se ha cambiado con exito");
-
+					Utils.sendMail(user, "Operacion realizada con exito", "La contraseña se ha cambiado con exito");
+					return ResponseEntity.ok(true);
+				}else 
+				{
+					return ResponseEntity.ok(false);
 				}
 				
 				
@@ -223,7 +227,7 @@ public class UserRest {
 			}
 			
 			
-			return ResponseEntity.ok(true);
+			
 			
 
 		}catch(NoSuchElementException | NullPointerException ex) 
