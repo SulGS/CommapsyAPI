@@ -1,6 +1,7 @@
 package com.sulgames.commapsy.rest;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
@@ -88,6 +89,8 @@ public class PlaceRest {
 	            
 			}
 			
+			place.setBytesPhoto("https://i.postimg.cc/CKDwQPkV/default.png");
+			
 			
 			return ResponseEntity.ok(place);
 			
@@ -109,7 +112,10 @@ public class PlaceRest {
 			
 			ArrayList<Place> places = placeDAO.getPlacesByName(jsonValues.getString("Name"));
 			
-			
+			for(Place place : places) 
+			{
+				place.setPhoto(Base64.getEncoder().encodeToString(Utils.extractBytes(place.getPhoto())));
+			}
 			
 			
 			return ResponseEntity.ok(places);
