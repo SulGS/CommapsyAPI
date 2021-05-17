@@ -89,7 +89,6 @@ public class PlaceRest {
 	            
 			}
 			
-			place.setBytesPhoto("https://i.postimg.cc/CKDwQPkV/default.png");
 			
 			
 			return ResponseEntity.ok(place);

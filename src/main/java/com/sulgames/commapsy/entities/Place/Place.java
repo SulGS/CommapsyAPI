@@ -32,8 +32,6 @@ public class Place {
 	
 	@Column(name = "Category", nullable = false, length = 40)
 	private String Category;
-	
-	private String bytesPhoto;
 
 	public static double toRad(double d) 
 	{
@@ -94,14 +92,6 @@ public class Place {
 
 	public void setCategory(String category) {
 		Category = category;
-	}
-
-	public String getBytesPhoto() {
-		return bytesPhoto;
-	}
-
-	public void setBytesPhoto(String bytesPhoto) {
-		this.bytesPhoto = bytesPhoto;
 	}
 	
 }
