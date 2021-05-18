@@ -111,12 +111,6 @@ public class PlaceRest {
 			
 			ArrayList<Place> places = placeDAO.getPlacesByName(jsonValues.getString("Name"));
 			
-			for(Place place : places) 
-			{
-				place.setPhoto(Base64.getEncoder().encodeToString(Utils.extractBytes(place.getPhoto())));
-			}
-			
-			
 			return ResponseEntity.ok(places);
 			
 
