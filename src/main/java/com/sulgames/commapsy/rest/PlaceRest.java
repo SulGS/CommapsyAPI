@@ -9,6 +9,8 @@ import javax.json.JsonObject;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sulgames.commapsy.entities.Place.Place;
 import com.sulgames.commapsy.entities.Place.PlaceDAO;
+import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.utils.Utils;
 
 @RestController
@@ -109,7 +112,7 @@ public class PlaceRest {
 		
 		try {
 			
-			ArrayList<Place> places = placeDAO.getPlacesByName(jsonValues.getString("Name"));
+			ArrayList<Place> places = placeDAO.getPlacesByName(jsonValues.getString("Name"),PageRequest.of(Integer.parseInt(jsonValues.getString("Page"))*25, 25));
 			
 			return ResponseEntity.ok(places);
 			
@@ -120,5 +123,25 @@ public class PlaceRest {
 		}
 
 	}
+	/*
+	@RequestMapping(value="s", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> register(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			
+			
+			
+			return ResponseEntity.ok(true);
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			return ResponseEntity.ok(false);
+		}
+
+	}*/
 	
 }
