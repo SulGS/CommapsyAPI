@@ -1,5 +1,8 @@
 package com.sulgames.commapsy.rest;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Base64;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
@@ -10,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.entities.User.UserDAO;
@@ -232,6 +237,35 @@ public class UserRest {
 
 		}catch(NoSuchElementException | NullPointerException ex) 
 		{
+			return ResponseEntity.ok(false);
+		}
+
+	}
+	
+	
+	
+	@RequestMapping(value="savePhoto", method=RequestMethod.POST, consumes = "multipart/form-data",
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> savePhoto(@RequestPart("Name") String fileName, @RequestPart("File") MultipartFile file) 
+	{
+		
+		
+		try {
+			
+			file.transferTo(new File("C:\\xampp\\htdocs\\images\\profiles\\" + fileName + ".png"));
+			
+			User user = getUser(fileName);
+			
+			user.setProfile_Photo("images/profiles/" + fileName + ".png");
+			
+			userDAO.save(user);
+			
+			return ResponseEntity.ok(true);
+			
+
+		}catch(Exception ex) 
+		{
+			ex.printStackTrace();
 			return ResponseEntity.ok(false);
 		}
 

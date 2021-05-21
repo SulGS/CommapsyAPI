@@ -123,14 +123,16 @@ public class PlaceRest {
 		}
 
 	}
-	/*
-	@RequestMapping(value="s", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+	
+	@RequestMapping(value="savePhoto", method=RequestMethod.POST, consumes = MediaType.IMAGE_PNG_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Boolean> register(@RequestBody String jsonBody) 
+	public ResponseEntity<Boolean> savePhoto(@RequestBody String jsonBody) 
 	{
 		JsonObject jsonValues = Utils.stringToJson(jsonBody);
 		
 		try {
+			
+			
 			
 			
 			
@@ -142,6 +144,6 @@ public class PlaceRest {
 			return ResponseEntity.ok(false);
 		}
 
-	}*/
+	}
 	
 }
