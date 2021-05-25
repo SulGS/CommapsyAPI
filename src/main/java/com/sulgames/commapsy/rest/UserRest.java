@@ -46,6 +46,8 @@ public class UserRest {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<User> login(@RequestBody String jsonBody) 
 	{
+		System.out.println(jsonBody);
+		
 		JsonObject jsonValues = Utils.stringToJson(jsonBody);
 		
 		try {
@@ -67,6 +69,40 @@ public class UserRest {
 
 		}catch(NoSuchElementException | NullPointerException ex) 
 		{
+			ex.printStackTrace();
+			return ResponseEntity.ok(null);
+		}
+
+	}
+	
+	@RequestMapping(value="adminLogin", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<User> adminLogin(@RequestBody String jsonBody) 
+	{
+		System.out.println(jsonBody);
+		
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			User user = getUser(jsonValues.getString("Mail"));
+			
+			if(user==null) 
+			{
+				return ResponseEntity.ok(null);
+			}
+			
+			if(user.getPassword().equals(jsonValues.getString("Password"))) 
+			{
+				return ResponseEntity.ok(user);
+			}else 
+			{
+				return ResponseEntity.ok(null);
+			}
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			ex.printStackTrace();
 			return ResponseEntity.ok(null);
 		}
 
