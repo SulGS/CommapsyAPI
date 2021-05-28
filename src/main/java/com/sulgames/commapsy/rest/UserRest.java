@@ -39,6 +39,27 @@ public class UserRest {
 			return null;
 		}
 	}
+	
+	@RequestMapping(value="getUser", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<User> getUserRequest(@RequestBody String jsonBody) 
+	{
+		
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			User user = getUser(jsonValues.getString("Mail"));
+			
+			return ResponseEntity.ok(user);
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			ex.printStackTrace();
+			return ResponseEntity.ok(null);
+		}
+
+	}
 
 
 
@@ -46,7 +67,6 @@ public class UserRest {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<User> login(@RequestBody String jsonBody) 
 	{
-		System.out.println(jsonBody);
 		
 		JsonObject jsonValues = Utils.stringToJson(jsonBody);
 		

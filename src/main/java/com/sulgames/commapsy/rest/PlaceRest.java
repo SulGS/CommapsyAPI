@@ -44,6 +44,27 @@ public class PlaceRest {
 		}
 	}
 	
+	@RequestMapping(value="get", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Place> get(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			Place place = getPlaceByID(Integer.parseInt(jsonValues.getString("ID")));
+			
+			
+			
+			return ResponseEntity.ok(place);
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			return ResponseEntity.ok(null);
+		}
+
+	}
+	
 	
 	
 	

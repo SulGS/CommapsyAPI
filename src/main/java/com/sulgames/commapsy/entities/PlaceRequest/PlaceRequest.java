@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "PlaceRequest")
+@Table(name = "placerequest")
 public class PlaceRequest {
 
 	@Id
@@ -20,7 +20,7 @@ public class PlaceRequest {
 	@Column(name = "UserMail", nullable = false, length = 320)
 	private String UserMail;
 	
-	@Column(name = "SendDate")
+	@Column(name = "Senddate")
 	private Date SendDate;
 	
 	@Column(name = "PlaceID")
@@ -47,13 +47,13 @@ public class PlaceRequest {
 	@Column(name = "Admin_Mail", nullable = true, length = 320)
 	private String Admin_Mail;
 	
-	@Column(name = "IsAccepted", nullable = true)
+	@Column(name = "Isaccepted", nullable = true)
 	private boolean IsAccepted;
 	
-	@Column(name = "ReplyBody", nullable = true, length = 320)
+	@Column(name = "Replybody", nullable = true, length = 320)
 	private String ReplyBody;
 	
-	@Column(name = "ReplyDate", nullable = true)
+	@Column(name = "Replydate", nullable = true)
 	private Date ReplyDate;
 
 	public Integer getID() {

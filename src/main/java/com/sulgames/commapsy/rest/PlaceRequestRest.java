@@ -2,6 +2,7 @@ package com.sulgames.commapsy.rest;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
@@ -20,6 +21,7 @@ import com.sulgames.commapsy.entities.Place.PlaceDAO;
 import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequest;
 import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequestDAO;
 import com.sulgames.commapsy.entities.User.User;
+import com.sulgames.commapsy.entities.User.UserDAO;
 import com.sulgames.commapsy.utils.Utils;
 
 @RestController
@@ -29,6 +31,12 @@ public class PlaceRequestRest {
 	
 	@Autowired
 	private PlaceRequestDAO placeRequestDAO;
+	
+	@Autowired
+	private PlaceDAO placeDAO;
+	
+	@Autowired
+	private UserDAO userDAO;
 
 	public PlaceRequest getPlaceByID(int placeID) 
 	{
@@ -78,6 +86,88 @@ public class PlaceRequestRest {
 		}catch(Exception ex) 
 		{
 			ex.printStackTrace();
+			return ResponseEntity.ok(false);
+		}
+
+	}
+	
+	@RequestMapping(value="get", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<PlaceRequest>> get(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			
+			List<PlaceRequest> prs = placeRequestDAO.getNoReplyRequests(PageRequest.of(Integer.parseInt(jsonValues.getString("Page"))*25, 25));
+			
+			
+			
+			return ResponseEntity.ok(prs);
+			
+
+		}catch(Exception ex) 
+		{
+			ex.printStackTrace();
+			return ResponseEntity.ok(null);
+		}
+
+	}
+	
+	@RequestMapping(value="manage", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Boolean> manage(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			
+			PlaceRequest pr = getPlaceByID(Integer.parseInt(jsonValues.getString("ID")));
+			
+			if(pr!=null) 
+			{
+				pr.setAdmin_Mail(jsonValues.getString("Mail"));
+				pr.setReplyDate(new Date(System.currentTimeMillis()));
+				pr.setIsAccepted(Boolean.parseBoolean(jsonValues.getString("State")));
+				pr.setReplyBody(jsonValues.getString("Reply"));
+				
+				placeRequestDAO.save(pr);
+				
+				
+				if(pr.isIsAccepted()) 
+				{
+					placeRequestDAO.deleteRequestsByID(pr.getPlaceID());
+					
+					Place place = placeDAO.getOne(pr.getPlaceID());
+					place.setLatitude(pr.getLatitude());
+					place.setLongitude(pr.getLongitude());
+					place.setName(pr.getName());
+					place.setPhoto(pr.getPhoto());
+					place.setDescription(pr.getDescription());
+					place.setCategory(pr.getCategory());
+					
+					placeDAO.save(place);
+					
+					Utils.sendMail(userDAO.getOne(pr.getUserMail()), "Peticion aceptada", "Su peticion ha sido aceptada");
+				}else 
+				{
+					Utils.sendMail(userDAO.getOne(pr.getUserMail()), "Peticion rechazada", "Su peticion ha sido rechazada por el siguiente motivo: "
+							+ pr.getReplyBody());
+				}
+				
+				
+				
+			}else 
+			{
+				return ResponseEntity.ok(false);
+			}
+			
+			
+			return ResponseEntity.ok(true);
+			
+
+		}catch(Exception ex) 
+		{
 			return ResponseEntity.ok(false);
 		}
 
