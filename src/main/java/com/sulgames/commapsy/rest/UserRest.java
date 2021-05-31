@@ -1,8 +1,6 @@
 package com.sulgames.commapsy.rest;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Base64;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
@@ -99,8 +97,6 @@ public class UserRest {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<User> adminLogin(@RequestBody String jsonBody) 
 	{
-		System.out.println(jsonBody);
-		
 		JsonObject jsonValues = Utils.stringToJson(jsonBody);
 		
 		try {

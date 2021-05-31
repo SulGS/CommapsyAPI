@@ -1,8 +1,5 @@
 package com.sulgames.commapsy.rest;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Base64;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;

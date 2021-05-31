@@ -1,7 +1,6 @@
 package com.sulgames.commapsy.rest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
@@ -17,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sulgames.commapsy.entities.Opinion.Opinion;
 import com.sulgames.commapsy.entities.Opinion.OpinionDAO;
-import com.sulgames.commapsy.entities.Place.Place;
-import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequest;
-import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.utils.Utils;
 
 @RestController

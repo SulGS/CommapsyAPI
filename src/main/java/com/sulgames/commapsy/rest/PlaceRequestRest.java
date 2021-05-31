@@ -1,6 +1,5 @@
 package com.sulgames.commapsy.rest;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,7 +19,6 @@ import com.sulgames.commapsy.entities.Place.Place;
 import com.sulgames.commapsy.entities.Place.PlaceDAO;
 import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequest;
 import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequestDAO;
-import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.entities.User.UserDAO;
 import com.sulgames.commapsy.utils.Utils;
 
