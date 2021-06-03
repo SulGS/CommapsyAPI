@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import javax.json.JsonObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sulgames.commapsy.entities.Admin.Admin;
 import com.sulgames.commapsy.entities.Admin.AdminDAO;
+import com.sulgames.commapsy.entities.Penalise.PenaliseDAO;
 import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.entities.User.UserDAO;
 import com.sulgames.commapsy.utils.Utils;
@@ -27,6 +29,9 @@ public class AdminRest {
 	
 	@Autowired
 	private UserDAO userDAO;
+	
+	@Autowired
+	private PenaliseDAO penaliseDAO;
 
 	public Admin getAdmin(String userMail) 
 	{
@@ -62,6 +67,10 @@ public class AdminRest {
 			
 			if(user.getPassword().equals(jsonValues.getString("Password"))) 
 			{
+				if(penaliseDAO.getPenalisesFromUser(user.getMail(), PageRequest.of(0, 25)).size()>=3) 
+				{
+					admin.setUserMail("0");;
+				}
 				return ResponseEntity.ok(admin);
 			}else 
 			{

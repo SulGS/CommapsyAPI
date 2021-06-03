@@ -1,11 +1,13 @@
 package com.sulgames.commapsy.rest;
 
 import java.io.File;
+import java.util.Date;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sulgames.commapsy.entities.Penalise.Penalise;
+import com.sulgames.commapsy.entities.Penalise.PenaliseDAO;
 import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.entities.User.UserDAO;
 import com.sulgames.commapsy.utils.Utils;
@@ -25,6 +29,10 @@ public class UserRest {
 
 	@Autowired
 	private UserDAO userDAO;
+	
+	@Autowired
+	private PenaliseDAO penaliseDAO;
+
 
 	public User getUser(String userMail) 
 	{
@@ -78,6 +86,12 @@ public class UserRest {
 			
 			if(user.getPassword().equals(jsonValues.getString("Password"))) 
 			{
+				if(penaliseDAO.getPenalisesFromUser(user.getMail(), PageRequest.of(0, 25)).size()>=3) 
+				{
+					user.setMail("0");
+				}
+				
+				
 				return ResponseEntity.ok(user);
 			}else 
 			{
@@ -93,33 +107,41 @@ public class UserRest {
 
 	}
 	
-	@RequestMapping(value="adminLogin", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+	
+	@RequestMapping(value="penalise", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<User> adminLogin(@RequestBody String jsonBody) 
+	public ResponseEntity<Boolean> penalise(@RequestBody String jsonBody) 
 	{
+		
 		JsonObject jsonValues = Utils.stringToJson(jsonBody);
 		
 		try {
-			User user = getUser(jsonValues.getString("Mail"));
 			
-			if(user==null) 
+			Penalise penalise = new Penalise();
+			
+			penalise.setUser(jsonValues.getString("UserMail"));
+			penalise.setAdmin(jsonValues.getString("AdminMail"));
+			penalise.setReply(jsonValues.getString("Reply"));
+			penalise.setSendDate(new Date(System.currentTimeMillis()));
+			
+			penaliseDAO.save(penalise);
+			
+			Utils.sendMail(userDAO.getOne(penalise.getUser()), "Castigo aplicado", "Se la ha aplicado "
+					+ "un castigo por el siguiente motivo: " + penalise.getReply());
+			
+			if(penaliseDAO.getPenalisesFromUser(penalise.getUser(), PageRequest.of(0, 25)).size()==3) 
 			{
-				return ResponseEntity.ok(null);
+				Utils.sendMail(userDAO.getOne(penalise.getUser()), "Ban permanente", 
+						"Debido a que ha recibido 3 castigos, no podra acceder más a su cuenta");
 			}
 			
-			if(user.getPassword().equals(jsonValues.getString("Password"))) 
-			{
-				return ResponseEntity.ok(user);
-			}else 
-			{
-				return ResponseEntity.ok(null);
-			}
+			return ResponseEntity.ok(true);
 			
 
 		}catch(NoSuchElementException | NullPointerException ex) 
 		{
 			ex.printStackTrace();
-			return ResponseEntity.ok(null);
+			return ResponseEntity.ok(false);
 		}
 
 	}
