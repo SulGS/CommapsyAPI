@@ -64,6 +64,25 @@ public class OpinionRest {
 
 	}
 	
+	@RequestMapping(value="get", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Opinion> get(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			Opinion opinion = getOpinionByID(Integer.parseInt(jsonValues.getString("ID")));
+			
+			return ResponseEntity.ok(opinion);
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			return ResponseEntity.ok(null);
+		}
+
+	}
+	
 	@RequestMapping(value="returnOpinions", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ArrayList<Opinion>> returnOpinions(@RequestBody String jsonBody) 
