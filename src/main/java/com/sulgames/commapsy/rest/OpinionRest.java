@@ -1,7 +1,6 @@
 package com.sulgames.commapsy.rest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
@@ -17,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sulgames.commapsy.entities.Opinion.Opinion;
 import com.sulgames.commapsy.entities.Opinion.OpinionDAO;
-import com.sulgames.commapsy.entities.Place.Place;
-import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequest;
-import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.utils.Utils;
 
 @RestController
@@ -68,6 +64,25 @@ public class OpinionRest {
 
 	}
 	
+	@RequestMapping(value="get", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Opinion> get(@RequestBody String jsonBody) 
+	{
+		JsonObject jsonValues = Utils.stringToJson(jsonBody);
+		
+		try {
+			Opinion opinion = getOpinionByID(Integer.parseInt(jsonValues.getString("ID")));
+			
+			return ResponseEntity.ok(opinion);
+			
+
+		}catch(NoSuchElementException | NullPointerException ex) 
+		{
+			return ResponseEntity.ok(null);
+		}
+
+	}
+	
 	@RequestMapping(value="returnOpinions", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ArrayList<Opinion>> returnOpinions(@RequestBody String jsonBody) 
@@ -102,6 +117,11 @@ public class OpinionRest {
 			opinion.setPlaceID(Integer.parseInt(jsonValues.getString("PlaceID")));
 			opinion.setRating((int)(Float.parseFloat(jsonValues.getString("Rating"))*2));
 			opinion.setComment(jsonValues.getString("Comment"));
+			
+			if(opinion.getUser_Mail().equals("")||opinion.getComment().equals("")) 
+			{
+				throw new Exception();
+			}
 
 			opinionDAO.save(opinion);
 

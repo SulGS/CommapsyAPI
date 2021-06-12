@@ -1,15 +1,19 @@
 package com.sulgames.commapsy.rest;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import javax.json.JsonObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,9 +21,14 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sulgames.commapsy.entities.Penalise.Penalise;
+import com.sulgames.commapsy.entities.Penalise.PenaliseDAO;
 import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.entities.User.UserDAO;
 import com.sulgames.commapsy.utils.Utils;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @RestController
 @RequestMapping("User")
@@ -27,6 +36,10 @@ public class UserRest {
 
 	@Autowired
 	private UserDAO userDAO;
+	
+	@Autowired
+	private PenaliseDAO penaliseDAO;
+
 
 	public User getUser(String userMail) 
 	{
@@ -80,6 +93,15 @@ public class UserRest {
 			
 			if(user.getPassword().equals(jsonValues.getString("Password"))) 
 			{
+				if(penaliseDAO.getPenalisesFromUser(user.getMail(), PageRequest.of(0, 25)).size()>=3) 
+				{
+					user.setMail("0");
+				}else 
+				{
+					user.set_Key(getJWTToken(user.getMail()));
+				}
+				
+				
 				return ResponseEntity.ok(user);
 			}else 
 			{
@@ -95,35 +117,41 @@ public class UserRest {
 
 	}
 	
-	@RequestMapping(value="adminLogin", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+	
+	@RequestMapping(value="penalise", method=RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<User> adminLogin(@RequestBody String jsonBody) 
+	public ResponseEntity<Boolean> penalise(@RequestBody String jsonBody) 
 	{
-		System.out.println(jsonBody);
 		
 		JsonObject jsonValues = Utils.stringToJson(jsonBody);
 		
 		try {
-			User user = getUser(jsonValues.getString("Mail"));
 			
-			if(user==null) 
+			Penalise penalise = new Penalise();
+			
+			penalise.setUser(jsonValues.getString("UserMail"));
+			penalise.setAdmin(jsonValues.getString("AdminMail"));
+			penalise.setReply(jsonValues.getString("Reply"));
+			penalise.setSendDate(new Date(System.currentTimeMillis()));
+			
+			penaliseDAO.save(penalise);
+			
+			Utils.sendMail(userDAO.getOne(penalise.getUser()), "Castigo aplicado", "Se la ha aplicado "
+					+ "un castigo por el siguiente motivo: " + penalise.getReply());
+			
+			if(penaliseDAO.getPenalisesFromUser(penalise.getUser(), PageRequest.of(0, 25)).size()==3) 
 			{
-				return ResponseEntity.ok(null);
+				Utils.sendMail(userDAO.getOne(penalise.getUser()), "Ban permanente", 
+						"Debido a que ha recibido 3 castigos, no podra acceder más a su cuenta");
 			}
 			
-			if(user.getPassword().equals(jsonValues.getString("Password"))) 
-			{
-				return ResponseEntity.ok(user);
-			}else 
-			{
-				return ResponseEntity.ok(null);
-			}
+			return ResponseEntity.ok(true);
 			
 
 		}catch(NoSuchElementException | NullPointerException ex) 
 		{
 			ex.printStackTrace();
-			return ResponseEntity.ok(null);
+			return ResponseEntity.ok(false);
 		}
 
 	}
@@ -155,12 +183,19 @@ public class UserRest {
 				
 				String key = Utils.generateRandomKey();
 				
+				if(user.getMail().equals("")||user.getName().equals("")||
+						user.getSurname().equals("")||user.getGender().equals("")) 
+				{
+					throw new Exception();
+				}
 				
 				user.set_Key(Utils.hashString(key));
 				
+				Utils.sendMail(user, "Clave de activacion de la cuenta", "Esta es su clave de activacion: " + key);
+				
+				
 				userDAO.save(user);
 				
-				Utils.sendMail(user, "Clave de activacion de la cuenta", "Esta es su clave de activacion: " + key);
 				
 				
 				
@@ -171,7 +206,7 @@ public class UserRest {
 			return ResponseEntity.ok(true);
 			
 
-		}catch(NoSuchElementException | NullPointerException ex) 
+		}catch(Exception ex) 
 		{
 			return ResponseEntity.ok(false);
 		}
@@ -296,6 +331,27 @@ public class UserRest {
 			return ResponseEntity.ok(false);
 		}
 
+	}
+	
+	private String getJWTToken(String mail) {
+		String secretKey = "mySecretKey";
+		List<GrantedAuthority> grantedAuthorities = AuthorityUtils
+				.commaSeparatedStringToAuthorityList("ROLE_USER");
+		
+		String token = Jwts
+				.builder()
+				.setId("softtekJWT")
+				.setSubject(mail)
+				.claim("authorities",
+						grantedAuthorities.stream()
+								.map(GrantedAuthority::getAuthority)
+								.collect(Collectors.toList()))
+				.setIssuedAt(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis() + 600000))
+				.signWith(SignatureAlgorithm.HS512,
+						secretKey.getBytes()).compact();
+
+		return "CommapsyAuthKey " + token;
 	}
 	
 	

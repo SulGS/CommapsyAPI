@@ -1,15 +1,11 @@
 package com.sulgames.commapsy.rest;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
 
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sulgames.commapsy.entities.Place.Place;
 import com.sulgames.commapsy.entities.Place.PlaceDAO;
-import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.utils.Utils;
 
 @RestController
@@ -144,7 +139,7 @@ public class PlaceRest {
 		}
 
 	}
-	
+	/*
 	@RequestMapping(value="savePhoto", method=RequestMethod.POST, consumes = MediaType.IMAGE_PNG_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Boolean> savePhoto(@RequestBody String jsonBody) 
@@ -165,6 +160,6 @@ public class PlaceRest {
 			return ResponseEntity.ok(false);
 		}
 
-	}
+	}*/
 	
 }

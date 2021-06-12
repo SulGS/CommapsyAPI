@@ -20,7 +20,7 @@ public interface PlaceRequestDAO extends JpaRepository<PlaceRequest, Integer>{
 	@Query(value = "INSERT INTO PlaceRequest(User_Mail,SendDate,PlaceID,Latitude,Longitude,Name,Photo,Description,Category,IsAccepted) values(:p1,:p2,:p3,:p4,:p5,:p6,:p7,:p8,:p9,false)" , nativeQuery = true)
 	@Transactional
 	public void customSave(@Param("p1") String uM,@Param("p2") Date send,@Param("p3") int ID,@Param("p4") double lat,@Param("p5") double lon,
-			@Param("p6")String photo,@Param("p7")String n, @Param("p8")String desc,@Param("p9") String category);
+			@Param("p6")String n,@Param("p7")String photo, @Param("p8")String desc,@Param("p9") String category);
 
 	
 	@Modifying

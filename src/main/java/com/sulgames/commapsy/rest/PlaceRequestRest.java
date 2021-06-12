@@ -1,6 +1,5 @@
 package com.sulgames.commapsy.rest;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,7 +19,6 @@ import com.sulgames.commapsy.entities.Place.Place;
 import com.sulgames.commapsy.entities.Place.PlaceDAO;
 import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequest;
 import com.sulgames.commapsy.entities.PlaceRequest.PlaceRequestDAO;
-import com.sulgames.commapsy.entities.User.User;
 import com.sulgames.commapsy.entities.User.UserDAO;
 import com.sulgames.commapsy.utils.Utils;
 
@@ -72,9 +70,15 @@ public class PlaceRequestRest {
 				pReq.setCategory(jsonValues.getString("Category"));
 				pReq.setIsAccepted(false);
 				
+				if(pReq.getUserMail().equals("")||pReq.getName().equals("")||
+						pReq.getDescription().equals("")||pReq.getCategory().equals("")) 
+				{
+					throw new Exception();
+				}
+				
 				placeRequestDAO.customSave(pReq.getUserMail(), pReq.getSendDate(),
 						pReq.getPlaceID(),pReq.getLatitude(), pReq.getLongitude(),
-						pReq.getPhoto(), pReq.getName(), pReq.getDescription(), pReq.getCategory());
+						pReq.getName(), pReq.getPhoto(), pReq.getDescription(), pReq.getCategory());
 				
 				
 			
@@ -130,6 +134,16 @@ public class PlaceRequestRest {
 				pr.setReplyDate(new Date(System.currentTimeMillis()));
 				pr.setIsAccepted(Boolean.parseBoolean(jsonValues.getString("State")));
 				pr.setReplyBody(jsonValues.getString("Reply"));
+				
+				if(pr.getAdmin_Mail().equals("")) 
+				{
+					throw new Exception();
+				}
+				
+				if(!pr.isIsAccepted()&&pr.getReplyBody().equals("")) 
+				{
+					throw new Exception();
+				}
 				
 				placeRequestDAO.save(pr);
 				
