@@ -159,6 +159,11 @@ public class AdminRest {
 				admin.setEnable(true);
 				admin.setDate(new Date(System.currentTimeMillis()));
 				
+				if(admin.getUserMail().equals("")||admin.getAdminBy().equals("")) 
+				{
+					throw new Exception();
+				}
+				
 			}else 
 			{
 				
@@ -171,7 +176,7 @@ public class AdminRest {
 			return ResponseEntity.ok(true);
 			
 
-		}catch(NoSuchElementException | NullPointerException ex) 
+		}catch(Exception ex) 
 		{
 			ex.printStackTrace();
 			return ResponseEntity.ok(false);

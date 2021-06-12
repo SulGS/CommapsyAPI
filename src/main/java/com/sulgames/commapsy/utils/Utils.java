@@ -174,7 +174,6 @@ public class Utils {
 			transport.close();
 		}
 		catch (MessagingException me) {
-			me.printStackTrace();
 			return false;
 		}
 

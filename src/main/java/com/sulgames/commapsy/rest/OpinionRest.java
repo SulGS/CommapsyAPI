@@ -117,6 +117,11 @@ public class OpinionRest {
 			opinion.setPlaceID(Integer.parseInt(jsonValues.getString("PlaceID")));
 			opinion.setRating((int)(Float.parseFloat(jsonValues.getString("Rating"))*2));
 			opinion.setComment(jsonValues.getString("Comment"));
+			
+			if(opinion.getUser_Mail().equals("")||opinion.getComment().equals("")) 
+			{
+				throw new Exception();
+			}
 
 			opinionDAO.save(opinion);
 

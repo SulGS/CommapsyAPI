@@ -3,9 +3,6 @@ package com.sulgames.commapsy.rest;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
-
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +54,11 @@ public class ReportRest {
 				report.setOpinionID(Integer.parseInt(jsonValues.getString("OpinionID")));
 				report.setReportComment(jsonValues.getString("Comment"));
 				report.setSendDate(new Date(System.currentTimeMillis()));
+				
+				if(report.getMail().equals("")||report.getReportComment().equals("")) 
+				{
+					throw new Exception();
+				}
 				
 				reportDAO.save(report);
 			
@@ -130,6 +132,11 @@ public class ReportRest {
 			
 			rID.setMail(jsonValues.getString("UserMail"));
 			rID.setOpinionID(Integer.parseInt(jsonValues.getString("OpinionID")));
+			
+			if(rID.getMail().equals("")) 
+			{
+				throw new Exception();
+			}
 			
 			Report report = reportDAO.getOne(rID);
 			

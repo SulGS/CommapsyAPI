@@ -2,7 +2,6 @@ package com.sulgames.commapsy.rest;
 
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import javax.json.JsonObject;
 
@@ -44,13 +43,18 @@ public class ContactFormRest {
 			cf.setBody(jsonValues.getString("Body"));
 			cf.setSendDate(new Date(System.currentTimeMillis()));
 			
+			if(cf.getSubject().equals("")||cf.getBody().equals("")) 
+			{
+				throw new Exception();
+			}
+			
 			cfDAO.save(cf);
 			
 			
 			return ResponseEntity.ok(true);
 			
 
-		}catch(NoSuchElementException | NullPointerException ex) 
+		}catch(Exception ex) 
 		{
 			return ResponseEntity.ok(false);
 		}

@@ -183,12 +183,19 @@ public class UserRest {
 				
 				String key = Utils.generateRandomKey();
 				
+				if(user.getMail().equals("")||user.getName().equals("")||
+						user.getSurname().equals("")||user.getGender().equals("")) 
+				{
+					throw new Exception();
+				}
 				
 				user.set_Key(Utils.hashString(key));
 				
+				Utils.sendMail(user, "Clave de activacion de la cuenta", "Esta es su clave de activacion: " + key);
+				
+				
 				userDAO.save(user);
 				
-				Utils.sendMail(user, "Clave de activacion de la cuenta", "Esta es su clave de activacion: " + key);
 				
 				
 				
@@ -199,7 +206,7 @@ public class UserRest {
 			return ResponseEntity.ok(true);
 			
 
-		}catch(NoSuchElementException | NullPointerException ex) 
+		}catch(Exception ex) 
 		{
 			return ResponseEntity.ok(false);
 		}
